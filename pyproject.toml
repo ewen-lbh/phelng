@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "phelng"
+version = "0.1.0"
+description = "Batch-download music with metadata from Spotify & audio from YouTube, using a .tsv file"
+authors = ["Ewen Le Bihan <ewen.lebihan7@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.scripts]
+phelng = "phelng.cli:run"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+docopt = "^0.6.2"
+tsv = "^1.2"
+
+[tool.poetry.dev-dependencies]
+pydeps = "^1.9.3"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

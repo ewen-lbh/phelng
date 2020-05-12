@@ -1,0 +1,56 @@
+[[package]]
+category = "main"
+description = "Pythonic argument parser, that will make you smile"
+name = "docopt"
+optional = false
+python-versions = "*"
+version = "0.6.2"
+
+[[package]]
+category = "dev"
+description = "Display module dependencies"
+name = "pydeps"
+optional = false
+python-versions = "*"
+version = "1.9.3"
+
+[package.dependencies]
+stdlib-list = "*"
+
+[[package]]
+category = "dev"
+description = "A list of Python Standard Libraries (2.6-7, 3.2-8)."
+name = "stdlib-list"
+optional = false
+python-versions = "*"
+version = "0.6.0"
+
+[package.extras]
+develop = ["sphinx"]
+
+[[package]]
+category = "main"
+description = "Tab-Separated-Value IO Library"
+name = "tsv"
+optional = false
+python-versions = "*"
+version = "1.2"
+
+[metadata]
+content-hash = "61a2ad1b7b01f911c1e4f0e43e5c8ab856708613a4efc5409d9a54306974002d"
+python-versions = "^3.8"
+
+[metadata.files]
+docopt = [
+    {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
+]
+pydeps = [
+    {file = "pydeps-1.9.3-py2-none-any.whl", hash = "sha256:f6a61171c89ea29e39a396e81c4f22c0e1233eb1cac0f329d3f4da17a9b55038"},
+    {file = "pydeps-1.9.3.tar.gz", hash = "sha256:a31c92b39a145ff46c2a1026d62952e051401895c69019af33506c751f8bd8a1"},
+]
+stdlib-list = [
+    {file = "stdlib-list-0.6.0.tar.gz", hash = "sha256:133cc99104f5a4e1604dc88ebb393529bd4c2b99ae7e10d46c0b596f3c67c3f0"},
+]
+tsv = [
+    {file = "tsv-1.2.zip", hash = "sha256:fa0d034a2ceea5aafafda9a3f38f72322df02e4d5745c46e6cdf0afaf5e5fe45"},
+]
