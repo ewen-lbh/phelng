@@ -11,7 +11,7 @@ phelng = "phelng.cli:run"
 [tool.poetry.dependencies]
 python = "^3.8"
 docopt = "^0.6.2"
-tsv = "^1.2"
+csv23 = "^0.3.1"
 
 [tool.poetry.dev-dependencies]
 pydeps = "^1.9.3"
