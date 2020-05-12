@@ -28,16 +28,8 @@ version = "0.6.0"
 [package.extras]
 develop = ["sphinx"]
 
-[[package]]
-category = "main"
-description = "Tab-Separated-Value IO Library"
-name = "tsv"
-optional = false
-python-versions = "*"
-version = "1.2"
-
 [metadata]
-content-hash = "61a2ad1b7b01f911c1e4f0e43e5c8ab856708613a4efc5409d9a54306974002d"
+content-hash = "cfdc19312865eb222e09110fc579f4551eec917f666a84df675e4a685633ec46"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -50,7 +42,4 @@ pydeps = [
 ]
 stdlib-list = [
     {file = "stdlib-list-0.6.0.tar.gz", hash = "sha256:133cc99104f5a4e1604dc88ebb393529bd4c2b99ae7e10d46c0b596f3c67c3f0"},
-]
-tsv = [
-    {file = "tsv-1.2.zip", hash = "sha256:fa0d034a2ceea5aafafda9a3f38f72322df02e4d5745c46e6cdf0afaf5e5fe45"},
 ]
