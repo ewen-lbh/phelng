@@ -1,15 +1,29 @@
 [[package]]
 category = "main"
-description = "Python 2/3 unicode CSV compatibility layer"
-name = "csv23"
+description = "Python package for providing Mozilla's CA Bundle."
+name = "certifi"
 optional = false
-python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
-version = "0.3.1"
+python-versions = "*"
+version = "2020.4.5.1"
 
-[package.extras]
-dev = ["tox (>=3.0)", "flake8", "pep8-naming", "wheel", "twine"]
-docs = ["sphinx (>=1.7)", "sphinx-rtd-theme"]
-test = ["mock (>=2)", "pytest (>=4.6)", "pytest-mock (>=1.8)", "pytest-cov"]
+[[package]]
+category = "main"
+description = "Universal encoding detector for Python 2 and 3"
+name = "chardet"
+optional = false
+python-versions = "*"
+version = "3.0.4"
+
+[[package]]
+category = "main"
+description = "A library to handle automated deprecations"
+name = "deprecation"
+optional = false
+python-versions = "*"
+version = "2.1.0"
+
+[package.dependencies]
+packaging = "*"
 
 [[package]]
 category = "main"
@@ -18,6 +32,67 @@ name = "docopt"
 optional = false
 python-versions = "*"
 version = "0.6.2"
+
+[[package]]
+category = "main"
+description = "Python audio data toolkit (ID3 and MP3)"
+name = "eyed3"
+optional = false
+python-versions = "*"
+version = "0.9.5"
+
+[package.dependencies]
+deprecation = "*"
+filetype = "*"
+
+[package.extras]
+art-plugin = ["pylast", "requests", "pillow"]
+display-plugin = ["grako"]
+yaml-plugin = ["ruamel.yaml"]
+
+[[package]]
+category = "main"
+description = "Infer file type and MIME type of any file/buffer. No external dependencies."
+name = "filetype"
+optional = false
+python-versions = "*"
+version = "1.0.7"
+
+[[package]]
+category = "main"
+description = "Internationalized Domain Names in Applications (IDNA)"
+name = "idna"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "2.9"
+
+[[package]]
+category = "main"
+description = "Core utilities for Python packages"
+name = "packaging"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "20.4"
+
+[package.dependencies]
+pyparsing = ">=2.0.2"
+six = "*"
+
+[[package]]
+category = "main"
+description = "Bring colors to your terminal."
+name = "pastel"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "0.2.0"
+
+[[package]]
+category = "main"
+description = "Text progress bar library for Python."
+name = "progressbar"
+optional = false
+python-versions = "*"
+version = "2.5"
 
 [[package]]
 category = "dev"
@@ -31,6 +106,67 @@ version = "1.9.3"
 stdlib-list = "*"
 
 [[package]]
+category = "main"
+description = "Python parsing module"
+name = "pyparsing"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+version = "2.4.7"
+
+[[package]]
+category = "main"
+description = "Add .env support to your django/flask apps in development and deployments"
+name = "python-dotenv"
+optional = false
+python-versions = "*"
+version = "0.13.0"
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
+category = "main"
+description = "Python HTTP for Humans."
+name = "requests"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+version = "2.23.0"
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+chardet = ">=3.0.2,<4"
+idna = ">=2.5,<3"
+urllib3 = ">=1.21.1,<1.25.0 || >1.25.0,<1.25.1 || >1.25.1,<1.26"
+
+[package.extras]
+security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
+socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
+
+[[package]]
+category = "main"
+description = "Python 2 and 3 compatibility utilities"
+name = "six"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+version = "1.14.0"
+
+[[package]]
+category = "main"
+description = "A light weight Python library for the Spotify Web API"
+name = "spotipy"
+optional = false
+python-versions = "*"
+version = "2.12.0"
+
+[package.dependencies]
+requests = ">=2.20.0"
+six = ">=1.10.0"
+
+[package.extras]
+doc = ["Sphinx (>=1.5.2)"]
+test = ["mock (2.0.0)"]
+
+[[package]]
 category = "dev"
 description = "A list of Python Standard Libraries (2.6-7, 3.2-8)."
 name = "stdlib-list"
@@ -41,22 +177,143 @@ version = "0.6.0"
 [package.extras]
 develop = ["sphinx"]
 
+[[package]]
+category = "main"
+description = "Pretty-print tabular data"
+name = "tabulate"
+optional = false
+python-versions = "*"
+version = "0.8.7"
+
+[package.extras]
+widechars = ["wcwidth"]
+
+[[package]]
+category = "main"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+name = "urllib3"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
+version = "1.25.9"
+
+[package.extras]
+brotli = ["brotlipy (>=0.6.0)"]
+secure = ["certifi", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "pyOpenSSL (>=0.14)", "ipaddress"]
+socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
+
+[[package]]
+category = "main"
+description = "Measures number of Terminal column cells of wide-character codes"
+name = "wcwidth"
+optional = false
+python-versions = "*"
+version = "0.1.9"
+
+[[package]]
+category = "main"
+description = "Yet Another Terminal Spinner"
+name = "yaspin"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+version = "0.17.0"
+
+[[package]]
+category = "main"
+description = "YouTube video downloader"
+name = "youtube-dl"
+optional = false
+python-versions = "*"
+version = "2020.5.8"
+
 [metadata]
-content-hash = "337eb3e0a4f9e41be7567ca01cb9f81c153b45399f58390e3f5aaa22064aa5ff"
+content-hash = "fa2ad6cf820c384142e5d9e669d4ca04baf73ae8d3455fca86bab0c8a64cc01c"
 python-versions = "^3.8"
 
 [metadata.files]
-csv23 = [
-    {file = "csv23-0.3.1-py2.py3-none-any.whl", hash = "sha256:35eb47f9611a7e25a3fcedeeb16041364a6484732c82dae684674ab50fd91f1a"},
-    {file = "csv23-0.3.1.zip", hash = "sha256:6077d1bbef3aa33958db95568b81f9effbd21d68f878842d8bba5030fb0a3917"},
+certifi = [
+    {file = "certifi-2020.4.5.1-py2.py3-none-any.whl", hash = "sha256:1d987a998c75633c40847cc966fcf5904906c920a7f17ef374f5aa4282abd304"},
+    {file = "certifi-2020.4.5.1.tar.gz", hash = "sha256:51fcb31174be6e6664c5f69e3e1691a2d72a1a12e90f872cbdb1567eb47b6519"},
+]
+chardet = [
+    {file = "chardet-3.0.4-py2.py3-none-any.whl", hash = "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"},
+    {file = "chardet-3.0.4.tar.gz", hash = "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"},
+]
+deprecation = [
+    {file = "deprecation-2.1.0-py2.py3-none-any.whl", hash = "sha256:a10811591210e1fb0e768a8c25517cabeabcba6f0bf96564f8ff45189f90b14a"},
+    {file = "deprecation-2.1.0.tar.gz", hash = "sha256:72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff"},
 ]
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
+]
+eyed3 = [
+    {file = "eyeD3-0.9.5-py2.py3-none-any.whl", hash = "sha256:94d475c0b55d9227a7f885f0be0f8433da9de6e5037e5164a524b042e78a2b62"},
+    {file = "eyeD3-0.9.5-py3.8.egg", hash = "sha256:5e517b8c0eb36d5225e9bc3e85ab340e211a0887dfb83507a1dd8f586bf55df9"},
+    {file = "eyeD3-0.9.5.tar.gz", hash = "sha256:faf5806197f2093e82c2830d41f2378f07b3a9da07a16fafb14fc6fbdebac50a"},
+]
+filetype = [
+    {file = "filetype-1.0.7-py2.py3-none-any.whl", hash = "sha256:353369948bb1c09b8b3ea3d78390b5586e9399bff9aab894a1dff954e31a66f6"},
+    {file = "filetype-1.0.7.tar.gz", hash = "sha256:da393ece8d98b47edf2dd5a85a2c8733e44b769e32c71af4cd96ed8d38d96aa7"},
+]
+idna = [
+    {file = "idna-2.9-py2.py3-none-any.whl", hash = "sha256:a068a21ceac8a4d63dbfd964670474107f541babbd2250d61922f029858365fa"},
+    {file = "idna-2.9.tar.gz", hash = "sha256:7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb"},
+]
+packaging = [
+    {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
+    {file = "packaging-20.4.tar.gz", hash = "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"},
+]
+pastel = [
+    {file = "pastel-0.2.0-py2.py3-none-any.whl", hash = "sha256:18b559dc3ad4ba9b8bd5baebe6503f25f36d21460f021cf27a8d889cb5d17840"},
+    {file = "pastel-0.2.0.tar.gz", hash = "sha256:46155fc523bdd4efcd450bbcb3f2b94a6e3b25edc0eb493e081104ad09e1ca36"},
+]
+progressbar = [
+    {file = "progressbar-2.5.tar.gz", hash = "sha256:5d81cb529da2e223b53962afd6c8ca0f05c6670e40309a7219eacc36af9b6c63"},
 ]
 pydeps = [
     {file = "pydeps-1.9.3-py2-none-any.whl", hash = "sha256:f6a61171c89ea29e39a396e81c4f22c0e1233eb1cac0f329d3f4da17a9b55038"},
     {file = "pydeps-1.9.3.tar.gz", hash = "sha256:a31c92b39a145ff46c2a1026d62952e051401895c69019af33506c751f8bd8a1"},
 ]
+pyparsing = [
+    {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
+    {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
+]
+python-dotenv = [
+    {file = "python-dotenv-0.13.0.tar.gz", hash = "sha256:3b9909bc96b0edc6b01586e1eed05e71174ef4e04c71da5786370cebea53ad74"},
+    {file = "python_dotenv-0.13.0-py2.py3-none-any.whl", hash = "sha256:25c0ff1a3e12f4bde8d592cc254ab075cfe734fc5dd989036716fd17ee7e5ec7"},
+]
+requests = [
+    {file = "requests-2.23.0-py2.py3-none-any.whl", hash = "sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee"},
+    {file = "requests-2.23.0.tar.gz", hash = "sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6"},
+]
+six = [
+    {file = "six-1.14.0-py2.py3-none-any.whl", hash = "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"},
+    {file = "six-1.14.0.tar.gz", hash = "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a"},
+]
+spotipy = [
+    {file = "spotipy-2.12.0-py2-none-any.whl", hash = "sha256:36afdf8bc71a30bed1a9344b0b7325ab7d645005fd72718515a4d4984b9a19f7"},
+    {file = "spotipy-2.12.0-py3-none-any.whl", hash = "sha256:43656984ac8730b6e2a1a88d59673296937a55a026edc8bcc1e882890c34e7d3"},
+    {file = "spotipy-2.12.0.tar.gz", hash = "sha256:f3a08edd516ffaf0731d40fdb7943445fe7b1b412700d042cbd168a726685222"},
+]
 stdlib-list = [
     {file = "stdlib-list-0.6.0.tar.gz", hash = "sha256:133cc99104f5a4e1604dc88ebb393529bd4c2b99ae7e10d46c0b596f3c67c3f0"},
+]
+tabulate = [
+    {file = "tabulate-0.8.7-py3-none-any.whl", hash = "sha256:ac64cb76d53b1231d364babcd72abbb16855adac7de6665122f97b593f1eb2ba"},
+    {file = "tabulate-0.8.7.tar.gz", hash = "sha256:db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"},
+]
+urllib3 = [
+    {file = "urllib3-1.25.9-py2.py3-none-any.whl", hash = "sha256:88206b0eb87e6d677d424843ac5209e3fb9d0190d0ee169599165ec25e9d9115"},
+    {file = "urllib3-1.25.9.tar.gz", hash = "sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527"},
+]
+wcwidth = [
+    {file = "wcwidth-0.1.9-py2.py3-none-any.whl", hash = "sha256:cafe2186b3c009a04067022ce1dcd79cb38d8d65ee4f4791b8888d6599d1bbe1"},
+    {file = "wcwidth-0.1.9.tar.gz", hash = "sha256:ee73862862a156bf77ff92b09034fc4825dd3af9cf81bc5b360668d425f3c5f1"},
+]
+yaspin = [
+    {file = "yaspin-0.17.0-py2.py3-none-any.whl", hash = "sha256:f8406d345ae046cb7330a4e581d7a959f6f7718a38002da6142b3bcaaa0367b1"},
+    {file = "yaspin-0.17.0.tar.gz", hash = "sha256:4330b240e3cb7ad990dbdc9c72891fecb1e1668cc19f0e44440bb01ffe2b1e56"},
+]
+youtube-dl = [
+    {file = "youtube_dl-2020.5.8-py2.py3-none-any.whl", hash = "sha256:0b5d3280522469968eb62eecb1f966f422b2be22f000a801bf87cb2172d8ea39"},
+    {file = "youtube_dl-2020.5.8.tar.gz", hash = "sha256:22da6788b55b7b267c6d59bcdfaf10e67a9ac980976d50d29a670473ad2a05bb"},
 ]
