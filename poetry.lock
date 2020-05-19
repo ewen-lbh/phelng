@@ -95,6 +95,17 @@ python-versions = "*"
 version = "2.5"
 
 [[package]]
+category = "main"
+description = "Library for building powerful interactive command lines in Python"
+name = "prompt-toolkit"
+optional = false
+python-versions = ">=3.6.1"
+version = "3.0.5"
+
+[package.dependencies]
+wcwidth = "*"
+
+[[package]]
 category = "dev"
 description = "Display module dependencies"
 name = "pydeps"
@@ -226,7 +237,7 @@ python-versions = "*"
 version = "2020.5.8"
 
 [metadata]
-content-hash = "fa2ad6cf820c384142e5d9e669d4ca04baf73ae8d3455fca86bab0c8a64cc01c"
+content-hash = "10d4367c1c33d44ad5852e124759d2eb8f11520c1a8326b1cea3997e5ab34397"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -268,6 +279,10 @@ pastel = [
 ]
 progressbar = [
     {file = "progressbar-2.5.tar.gz", hash = "sha256:5d81cb529da2e223b53962afd6c8ca0f05c6670e40309a7219eacc36af9b6c63"},
+]
+prompt-toolkit = [
+    {file = "prompt_toolkit-3.0.5-py3-none-any.whl", hash = "sha256:df7e9e63aea609b1da3a65641ceaf5bc7d05e0a04de5bd45d05dbeffbabf9e04"},
+    {file = "prompt_toolkit-3.0.5.tar.gz", hash = "sha256:563d1a4140b63ff9dd587bda9557cffb2fe73650205ab6f4383092fb882e7dc8"},
 ]
 pydeps = [
     {file = "pydeps-1.9.3-py2-none-any.whl", hash = "sha256:f6a61171c89ea29e39a396e81c4f22c0e1233eb1cac0f329d3f4da17a9b55038"},

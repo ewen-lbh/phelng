@@ -20,6 +20,7 @@ yaspin = "^0.17.0"
 progressbar = "^2.5"
 eyed3 = "^0.9.5"
 python-dotenv = "^0.13.0"
+prompt_toolkit = "^3.0.5"
 
 [tool.poetry.dev-dependencies]
 pydeps = "^1.9.3"
