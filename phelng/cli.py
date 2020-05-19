@@ -27,8 +27,7 @@ Features:
 	• Provides options to throttle the network usage so you can use it in the background
 
 Usage:
-	phelng FILES
-...
+	phelng FILES...
 
 Options:
 	-p --parallel-downloads INTEGER  Download up to INTEGER tracks in parallel
@@ -50,11 +49,7 @@ import sys
 from pprint import pprint
 from wcwidth import wcswidth
 from shutil import get_terminal_size
-
-class Track(NamedTuple):
-	artist: str
-	title: str
-	album: Optional[str] = None
+from phelng.metadata import SpotifyClient, Track
 
 def run(**args):
 	args = args or docopt.docopt(__doc__)
@@ -91,7 +86,6 @@ def parse_tsv_lines(lines: Set[str]) -> Set[Track]:
 	parsed = set()
 	for line in lines:
 		cells = line.split('\t')
-		print(cells)
 		if len(cells) == 2:
 			cells = [cells[0], cells[1], None]
 		if len(cells) != 3:
@@ -112,9 +106,8 @@ def show_library(library: Set[Track], max_cell_width: Optional[int] = None, padd
 	header = Track(artist="ARTIST", title="TITLE", album="ALBUM")
 	_print_row(header, columns_lengths)
 	for row in library:
-		_print_row(row, columns_lengths)
-		pass
-	
+		track = SpotifyClient().get_appropriate_track(row) or row
+		_print_row(track, columns_lengths)
 def _add_cell_padding(cell:str, column_length:int) -> str:
 	missing_spaces = column_length - wcswidth(cell)
 	if missing_spaces < 0:
