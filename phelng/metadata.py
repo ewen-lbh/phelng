@@ -140,8 +140,12 @@ class SpotifyClient:
         )
 
     def get_playlist(self, playlist_id: str) -> List[TrackSpotify]:
-        items = self.c.playlist_tracks(playlist_id)["items"]
-        tracks = [i["track"] for i in items if not i["is_local"]]
+        results = self.c.playlist_tracks(playlist_id)
+        tracks = results['items']
+        while results['next']:
+            results = self.c.next(results)
+            tracks.extend(results['items'])
+        tracks = [i["track"] for i in tracks if not i["is_local"]]
         return [self.get_metadata(track) for track in tracks]
 
 
