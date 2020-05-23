@@ -139,6 +139,11 @@ class SpotifyClient:
             cover_art_url=get_best_cover_art_url(album),
         )
 
+    def get_playlist(self, playlist_id: str) -> List[TrackSpotify]:
+        items = self.c.playlist_tracks(playlist_id)["items"]
+        tracks = [i["track"] for i in items if not i["is_local"]]
+        return [self.get_metadata(track) for track in tracks]
+
 
 if __name__ == "__main__":
     tok = get_spotify_token()
