@@ -53,24 +53,31 @@ from pprint import pprint
 from wcwidth import wcswidth
 from shutil import get_terminal_size
 from phelng.metadata import SpotifyClient, Track, TrackSpotify
-from PyInquirer import prompt
+from PyInquirer import prompt, ValidationError, Validator
+import re
 
+def create_missing_files(*files) -> None:
+    for file in files:
+        if not os.path.exists(file):
+            with open(file, 'w') as f: f.write('')
+            print(f'info: Created non-existent file {file!r}')
 
-def run(**args):
-    args = args or docopt.docopt(__doc__)
+def run():
+    args = docopt.docopt(__doc__)
     files = args["FILES"]
-    check_all_files_exist(files)
     spotify = SpotifyClient()
     if args["--add-to"]:
+        create_missing_files(*files)
         if len(files) != 1:
             print("Please specify exactly one file in the --add-to mode")
             exit(1)
 
         chosen_playlist = choose_playlist(spotify)
         append_tracks_to_library(chosen_playlist, append_to=files[0])
+    check_all_files_exist(files)
     library = merge_tsv_files(files)
     library = parse_tsv_lines(library)
-    if args['--list']:
+    if args["--list"]:
         show_library(library)
 
 
@@ -152,28 +159,63 @@ def _print_row(track: Track, columns_lengths: Dict[str, int]):
 
 
 def choose_playlist(spotify: SpotifyClient) -> List[TrackSpotify]:
-    print("Fetching your playlists...", end="")
-    sys.stdout.flush()
-    playlists = spotify.c.current_user_playlists()["items"]
-    print(" Done.")
-
-    playlist_name = prompt(
+    playlist_input_method = prompt(
         [
             {
                 "type": "list",
                 "name": "ans",
-                "message": "Add tracks from playlist",
-                "choices": playlists,
+                "message": "Choose a playlist by",
+                "choices": ["Inputting its ID", "Selecting from your playlists"],
             }
         ]
-    )['ans']
-    playlist = [ p for p in playlists if p['name'] == playlist_name ][0]
-    return spotify.get_playlist(playlist['id'])
+    )["ans"]
+
+    if playlist_input_method == "Selecting from your playlists":
+        print("Fetching your playlists...", end="")
+        sys.stdout.flush()
+        playlists = spotify.c.current_user_playlists()["items"]
+        print(" Done.")
+        playlist_name = prompt(
+            [
+                {
+                    "type": "list",
+                    "name": "user_playlist",
+                    "message": "Add tracks from playlist",
+                    "choices": playlists,
+                }
+            ]
+        )["ans"]
+        playlist_id = [p for p in playlists if p["name"] == playlist_name][0]["id"]
+    else:
+
+        class SpotifyPlaylistIDValidator(Validator):
+            def validate(self, document):
+                ok = re.match(r"^[0-9A-Za-z_-]{22}$", document.text)
+                if not ok:
+                    raise ValidationError(
+                        message="Please enter a valid spotify playlist ID",
+                        cursor_position=len(document.text),
+                    )  # Move cursor to end
+
+        playlist_id = prompt(
+            {
+                "type": "input",
+                "name": "ans",
+                "message": "Enter the spotify playlist ID",
+                "validate": SpotifyPlaylistIDValidator,
+            }
+        )["ans"]
+
+    print("Getting the playlist's tracks...", end="")
+    sys.stdout.flush()
+    playlist = spotify.get_playlist(playlist_id)
+    print(f" Done: got {len(playlist)} track(s)")
+    return playlist
 
 
 def append_tracks_to_library(tracks: List[TrackSpotify], append_to: str) -> None:
     with open(append_to, "a") as file:
-        file.write("\n".join((t.to_tsv() for t in tracks)) + '\n')
+        file.write("\n".join((t.to_tsv() for t in tracks)) + "\n")
 
 
 def terminal_width() -> int:
@@ -181,4 +223,4 @@ def terminal_width() -> int:
 
 
 if __name__ == "__main__":
-    run(FILES=[".library-merged.tsv"])
+    run()
