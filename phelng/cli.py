@@ -179,7 +179,7 @@ def choose_playlist(spotify: SpotifyClient) -> List[TrackSpotify]:
             [
                 {
                     "type": "list",
-                    "name": "user_playlist",
+                    "name": "ans",
                     "message": "Add tracks from playlist",
                     "choices": playlists,
                 }
