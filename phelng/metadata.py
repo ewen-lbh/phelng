@@ -9,10 +9,12 @@ import re
 from spotipy import Spotify, prompt_for_user_token
 import requests
 
+
 class Track(NamedTuple):
-	artist: str
-	title: str
-	album: Optional[str] = None
+    artist: str
+    title: str
+    album: Optional[str] = None
+
 
 class TrackSpotify(NamedTuple):
     artists: List[str]
@@ -27,10 +29,13 @@ class TrackSpotify(NamedTuple):
     @property
     def cover_art_filepath(self) -> str:
         return cover_art_cache(self.cover_art_url)
-    
+
     @property
     def artist(self) -> str:
         return self.artists[0]
+
+    def to_tsv(self) -> str:
+        return "\t".join((self.artist, self.title, self.album))
 
 
 def get_spotify_token() -> str:
@@ -110,7 +115,7 @@ class SpotifyClient:
     def _build_search_query(track: Track) -> str:
         """
         Build a query with fields to request spotify with.
-        See https://developer.spotify.com/documentation/web-api/reference/search/search/#writing-a-query---guidelines
+        See https://developer.spotify.com/documentation/web-api/reference/search/search/#writing-a-query
         """
         field = lambda name, value: f"{name.lower()}:{value.lower()} "
         query = field("artist", track.artist) + field("track", track.title)
@@ -119,7 +124,10 @@ class SpotifyClient:
         return query
 
     def get_metadata(self, track: Dict[str, Any]) -> TrackSpotify:
-        album = self.c.album(track["album"]["id"])
+        album = track["album"]
+        # Handle case where the response includes a SimplifiedTrack object
+        if "release_date" not in album or "tracks" not in album:
+            album = self.c.album(track["album"]["id"])
         return TrackSpotify(
             artists=[a["name"] for a in track["artists"]],
             title=track["name"],
@@ -143,5 +151,3 @@ if __name__ == "__main__":
             f"Playing {title} by {artist} on your {playing['device']['type'].lower()} {playing['device']['name']}"
         )
     track = SpotifyClient().get_appropriate_track(Track(artist=artist, title=title))
-    pprint(track)
-    subprocess.run(["xdg-open", track.cover_art_filepath])
