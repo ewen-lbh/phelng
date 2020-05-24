@@ -134,6 +134,14 @@ stdlib-list = "*"
 
 [[package]]
 category = "main"
+description = "Manipulate audio with an simple and easy high level interface"
+name = "pydub"
+optional = false
+python-versions = "*"
+version = "0.24.0"
+
+[[package]]
+category = "main"
 description = "Pygments is a syntax highlighting package written in Python."
 name = "pygments"
 optional = false
@@ -290,7 +298,7 @@ python-versions = "*"
 version = "2020.5.8"
 
 [metadata]
-content-hash = "2c6dc6343f673a2e759ed741f1ca1e2ad1aa0cc8dfa8e6147d33d296fd15ecd3"
+content-hash = "ef6d5233d6d1ee8b7e68cc26dba7f198fd0cb68f78a59f4092149362d98f0867"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -346,6 +354,10 @@ prompt-toolkit = [
 pydeps = [
     {file = "pydeps-1.9.3-py2-none-any.whl", hash = "sha256:f6a61171c89ea29e39a396e81c4f22c0e1233eb1cac0f329d3f4da17a9b55038"},
     {file = "pydeps-1.9.3.tar.gz", hash = "sha256:a31c92b39a145ff46c2a1026d62952e051401895c69019af33506c751f8bd8a1"},
+]
+pydub = [
+    {file = "pydub-0.24.0-py2.py3-none-any.whl", hash = "sha256:6f986c504b4fb57ec7aaf7454ce04ed5c9f3252fd5ffa259f32bfb9452811a30"},
+    {file = "pydub-0.24.0.tar.gz", hash = "sha256:ed3bbb49a1ca4858d4bd153b3c0e2f2ce523d2aa054b5f17c6f9df01ab6e5051"},
 ]
 pygments = [
     {file = "Pygments-2.6.1-py3-none-any.whl", hash = "sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324"},
