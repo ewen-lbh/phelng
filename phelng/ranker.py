@@ -40,22 +40,6 @@ class Ranker:
         # Fallback case, score is 1
         return 1
 
-    def is_full_album(self, video: YoutubeVideo) -> bool:
-        """
-        Checks if the video title contains "Full Album".
-        If the track's album, title or artist contains "Full Album",
-        always return `False`
-        """
-        if not any(
-            (
-                # do ._asdict.get because track.album could be undefined
-                "full album" in self.track._asdict().get(f, "").lower()
-                for f in ["album", "title", "artist"]
-            )
-        ):
-            return re.match(r"full album", video.title) != None
-        return False
-
     def select(self, videos: List[YoutubeVideo]) -> YoutubeVideo:
         """
         Selects the YouTube video to serve as the audio source
@@ -64,10 +48,6 @@ class Ranker:
         # Exclude videos that don't match the duration threshold
         if hasattr(self.track, "duration"):
             videos = [v for v in videos if self.duration(v)]
-
-        # Exlude videos that include "Full Album" in the title
-        # (except if album/artist/track names are "Full Album")
-        videos = [v for v in videos if not self.is_full_album(v)]
 
         # If the video's artist matches the track's, take that one immediately
         youtube_artist_extract_pattern = re.compile(r"(.+)(?: [-–] Topic)?")

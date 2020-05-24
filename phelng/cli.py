@@ -8,7 +8,6 @@ Features:
         — Prefers videos uploaded by "<artist>" or "<artist> - Topic"
         — If the track has multiple artists, (,-separated), first try all of them,
           then try them one by one.
-        — Exclude videos which contains "full album" in the title
     • Normalizes the audio
     • Downloads up to --parallel-downloads tracks at the same time
     • Applies as much IDv3 tags as possible, using Spotify's API:
