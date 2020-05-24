@@ -102,7 +102,7 @@ def merge_tsv_files(files: List[str]) -> Set[tuple]:
     for file in files:
         for line in open(file).read().split("\n"):
             # Ignore comments
-            if line.startswith("# "):
+            if line.startswith("\t"):
                 continue
             # Ignore empty lines
             if not line:
