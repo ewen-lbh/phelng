@@ -1,12 +1,11 @@
 from typing import *
-from phelng.youtube import YoutubeVideo
-from phelng.metadata import Track, TrackSpotify
+from phelng.youtube import YoutubeVideo, search
+from phelng.metadata import Track, TrackSpotify, SpotifyClient
 import re
 
 
 class Ranker:
     def __init__(self, args: Dict[str, Any], track: Union[Track, TrackSpotify]) -> None:
-        self.duration_check_margin = args["--duration-check-margin"]
         self.duration_exclude_margin = args["--duration-exclude-margin"]
         self.track = track
 
@@ -21,13 +20,7 @@ class Ranker:
         # Get the absolute difference between the youtube video and the spotify metadata
         duration_diff = abs(self.track.duration - video.duration)
         # Check if this duration is <= --duration-check-margin
-        if duration_diff <= self.duration_check_margin:
-            return 1
-        # Check if this duration is <= --duration-exclude-margin
-        if duration_diff <= self.duration_exclude_margin:
-            return 0
-        # Exclude
-        return -1
+        return duration_diff <= self.duration_exclude_margin
 
     def uploader_name(self, video: YoutubeVideo) -> int:
         """
@@ -46,7 +39,7 @@ class Ranker:
             return 2
         # Fallback case, score is 1
         return 1
-    
+
     def is_full_album(self, video: YoutubeVideo) -> bool:
         """
         Checks if the video title contains "Full Album".
@@ -70,7 +63,7 @@ class Ranker:
         """
         # Exclude videos that don't match the duration threshold
         if hasattr(self.track, "duration"):
-            videos = [v for v in videos if self.duration(v) != -1]
+            videos = [v for v in videos if self.duration(v)]
 
         # Exlude videos that include "Full Album" in the title
         # (except if album/artist/track names are "Full Album")
@@ -84,5 +77,18 @@ class Ranker:
                 == self.track.artist
             ):
                 return video
-        
+
         return videos[0]
+
+
+if __name__ == "__main__":
+    track = Track("Geotic", "Swiss Bicycle")
+    videos = search(f"{track.artist} - {track.title}")
+    import json
+    open("temp.json", "w").write(json.dumps([ v._asdict() for v in videos ]))
+    ranker = Ranker(
+        {"--duration-exclude-margin": 5},
+        SpotifyClient().get_appropriate_track(track) or track,
+    )
+    open("selected.json", "w").write(json.dumps(ranker.select(videos)._asdict()))
+
