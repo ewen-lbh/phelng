@@ -141,12 +141,20 @@ class SpotifyClient:
 
     def get_playlist(self, playlist_id: str) -> List[TrackSpotify]:
         results = self.c.playlist_tracks(playlist_id)
-        tracks = results['items']
-        while results['next']:
+        return self._get_all_from_paginated(results)
+
+    def _get_all_from_paginated(self, results) -> List[TrackSpotify]:
+        tracks = results["items"]
+        while results["next"]:
             results = self.c.next(results)
-            tracks.extend(results['items'])
-        tracks = [i["track"] for i in tracks if not i["is_local"]]
+            tracks.extend(results["items"])
+        tracks = [i["track"] for i in tracks if not i.get("is_local")]
         return [self.get_metadata(track) for track in tracks]
+
+    def get_saved_tracks(self) -> List[TrackSpotify]:
+        results = self.c.current_user_saved_tracks()
+        return self._get_all_from_paginated(results)
+
 
 
 if __name__ == "__main__":

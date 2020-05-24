@@ -165,7 +165,11 @@ def choose_playlist(spotify: SpotifyClient) -> List[TrackSpotify]:
                 "type": "list",
                 "name": "ans",
                 "message": "Choose a playlist by",
-                "choices": ["Inputting its ID", "Selecting from your playlists"],
+                "choices": [
+                    "Inputting its ID",
+                    "Selecting from your playlists",
+                    "Using your saved tracks",
+                ],
             }
         ]
     )["ans"]
@@ -186,6 +190,13 @@ def choose_playlist(spotify: SpotifyClient) -> List[TrackSpotify]:
             ]
         )["ans"]
         playlist_id = [p for p in playlists if p["name"] == playlist_name][0]["id"]
+        print("Getting the playlist's tracks...", end="")
+        sys.stdout.flush()
+        playlist = spotify.get_playlist(playlist_id)
+    elif playlist_input_method == "Using your saved tracks":
+        print("Getting your saved tracks...", end="")
+        sys.stdout.flush()
+        playlist = spotify.get_saved_tracks()
     else:
 
         class SpotifyPlaylistIDValidator(Validator):
@@ -206,9 +217,9 @@ def choose_playlist(spotify: SpotifyClient) -> List[TrackSpotify]:
             }
         )["ans"]
 
-    print("Getting the playlist's tracks...", end="")
-    sys.stdout.flush()
-    playlist = spotify.get_playlist(playlist_id)
+        print("Getting the playlist's tracks...", end="")
+        sys.stdout.flush()
+        playlist = spotify.get_playlist(playlist_id)
     print(f" Done: got {len(playlist)} track(s)")
     return playlist
 
