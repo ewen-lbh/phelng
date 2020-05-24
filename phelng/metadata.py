@@ -1,8 +1,10 @@
 from datetime import date
+from os.path import expanduser
 from pprint import pprint
 from shutil import copyfileobj
 import subprocess
 from typing import *
+import eyed3
 from dotenv import load_dotenv
 from os import makedirs, path
 import re
@@ -156,15 +158,30 @@ class SpotifyClient:
         return self._get_all_from_paginated(results)
 
 
+def apply_metadata(
+    filepath,
+    metadata: Union[Track, TrackSpotify],
+    try_to_convert=True,
+    errors_hook=print,
+):
+    file = eyed3.load(filepath)
+    if file.tag == None:
+        file.initTag()
 
-if __name__ == "__main__":
-    tok = get_spotify_token()
-    sp = get_authed_client(tok)
-    playing = sp.current_playback()
-    artist = playing["item"]["artists"][0]["name"]
-    title = playing["item"]["name"]
-    if playing["is_playing"]:
-        print(
-            f"Playing {title} by {artist} on your {playing['device']['type'].lower()} {playing['device']['name']}"
+    file.tag.artist = file.tag.album_artist = metadata.artist
+    file.tag.title = metadata.title
+    if metadata.album:
+        file.tag.album = metadata.album
+
+    try:
+        file.tag.track_num = metadata.track_number
+        file.tag.track_total = metadata.total_tracks
+        if metadata.release_date:
+            file.tag.year = metadata.release_date.year
+        file.tag.images.set(
+            3, open(metadata.cover_art_filepath, "rb").read(), "image/png"
         )
-    track = SpotifyClient().get_appropriate_track(Track(artist=artist, title=title))
+    except AttributeError:
+        pass
+
+    file.tag.save()
