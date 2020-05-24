@@ -27,7 +27,8 @@ Features:
     • Provides options to throttle the network usage so you can use it in the background
 
 Usage:
-    phelng [options] FILES...
+    phelng [-l] [-d] [-n] [-t] [options] FILE...
+    phelng -a [-l] [-d] [-n] [-t] [options] FILE
 
 Options:
     -p --parallel-downloads INTEGER  Download up to INTEGER tracks in parallel
@@ -35,15 +36,14 @@ Options:
                                      separating track title and artist with a double dash "--"
     --keep-one-artist                Strip additionnal artist names from the "artists" field
     -N --network-limit NUMBER        Limit network usage (upload and download) by NUMBER kbps.
-	--no-deduplicate                 Don't deduplicate the FILES' entries
 
 Actions (combinable, executed in the presented order):
 If no actions are provided, `-dtn` is assumed.
-    -a --add-to     Adds the tracks from one of your spotify playlists to FILES
-    -l --list       Show the library
-    -d --download   Downloads mp3s
-    -n --normalize  Normalizes the volume of existing files
-    -t --tag        Applies metadata to existing files
+    -a --add-to       Adds the tracks from one of your spotify playlists to FILE
+    -l --list         Show the library
+    -d --download     Downloads mp3s
+    -n --normalize    Normalizes the volume of existing files
+    -t --tag          Applies metadata to existing FILE
 """
 from typing import *
 import docopt
@@ -53,18 +53,21 @@ from pprint import pprint
 from wcwidth import wcswidth
 from shutil import get_terminal_size
 from phelng.metadata import SpotifyClient, Track, TrackSpotify
+from phelng.downloader import download_library
 from PyInquirer import prompt, ValidationError, Validator
 import re
 
 def create_missing_files(*files) -> None:
     for file in files:
         if not os.path.exists(file):
-            with open(file, 'w') as f: f.write('')
-            print(f'info: Created non-existent file {file!r}')
+            with open(file, "w") as f:
+                f.write("")
+            print(f"info: Created non-existent file {file!r}")
+
 
 def run():
     args = docopt.docopt(__doc__)
-    files = args["FILES"]
+    files = args["FILE"]
     spotify = SpotifyClient()
     if args["--add-to"]:
         create_missing_files(*files)
@@ -77,9 +80,12 @@ def run():
     check_all_files_exist(files)
     library = merge_tsv_files(files)
     library = parse_tsv_lines(library)
+    
     if args["--list"]:
         show_library(library)
-
+    if args["--download"]:
+        download_library(library)
+    
 
 def check_all_files_exist(files: List[str]) -> bool:
     for file in files:
@@ -136,10 +142,8 @@ def show_library(library: Set[Track], max_cell_width: Optional[int] = None, padd
     }
     header = Track(artist="ARTIST", title="TITLE", album="ALBUM")
     _print_row(header, columns_lengths)
-    spotify = SpotifyClient()
     for row in library:
-        track = spotify.get_appropriate_track(row) or row
-        _print_row(track, columns_lengths)
+        _print_row(row, columns_lengths)
 
 
 def _add_cell_padding(cell: str, column_length: int) -> str:
