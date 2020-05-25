@@ -9,7 +9,7 @@ license = "MIT"
 phelng = "phelng.cli:run"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 docopt = "^0.6.2"
 tabulate = "^0.8.7"
 wcwidth = "^0.1.9"
