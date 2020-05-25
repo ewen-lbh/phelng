@@ -165,6 +165,9 @@ def apply_metadata(
     errors_hook=print,
 ):
     file = eyed3.load(filepath)
+    if file is None:
+        errors_hook("Can't load file with eyed3")
+        return
     if file.tag == None:
         file.initTag()
 

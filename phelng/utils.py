@@ -1,3 +1,4 @@
+from os.path import expanduser
 from typing import *
 import os, sys
 from shutil import get_terminal_size
@@ -18,3 +19,37 @@ def check_all_files_exist(files: List[str]) -> bool:
 
 def terminal_width() -> int:
     return get_terminal_size((80, 80)).columns
+
+def make_filename_safe(o: str, substitute: str = '-', remove_whitespace: bool = True, character_sets: Optional[Tuple[str]] = None) -> str:
+    """
+    Removes unsafe characters from string
+    
+    character_sets: a tuple of strings corresponding to `os.name` ('nt' or 'posix')
+                    defaults to: `os.name`
+    """
+    unsafe_chars = {
+        'posix': {'&', '$', ':', '?', '|', '`', ''},
+        'nt': {'\\', '/', ':', '*', '?', '"', '<', '>', '|'},
+    }
+    absolutely_unsafe = {'\0', '\n', '/'}
+    whitespace = {'\n', '\t', ' '}
+    character_sets = character_sets if character_sets is not None else (os.name,)
+    
+    to_remove = absolutely_unsafe
+    for character_set in character_sets:
+        to_remove |= unsafe_chars[character_set]
+    if remove_whitespace:
+        to_remove |= whitespace
+    
+    safe = str()
+    for c in o:
+        if c in to_remove:
+            c = substitute
+        safe += c
+    
+    return safe
+    
+        
+        
+
+cache_dir = expanduser('~/.cache/phelng')

@@ -30,11 +30,13 @@ Usage:
     phelng -a [-l] [-d] [-n] [-t] [options] FILE
 
 Options:
-    -p --parallel-downloads INTEGER  Download up to INTEGER tracks in parallel
-    --slugify-filenames              Save the filenames in a URL-compatible manner, 
-                                     separating track title and artist with a double dash "--"
-    --keep-one-artist                Strip additionnal artist names from the "artists" field
-    -N --network-limit NUMBER        Limit network usage (upload and download) by NUMBER kbps.
+    -p --parallel-downloads INTEGER    Download up to INTEGER tracks in parallel
+    --slugify-filenames                Save the filenames in a URL-compatible manner, 
+                                       separating track title and artist with a double dash "--"
+    --keep-one-artist                  Strip additionnal artist names from the "artists" field
+    -N --network-limit NUMBER          Limit network usage (upload and download) by NUMBER kbps.
+    --duration-exclude-margin NUMBER   Videos that are more than ±this seconds long 
+                                       than the track will not be selected for download [default: 5]
 
 Actions (combinable, executed in the presented order):
 If no actions are provided, `-dtn` is assumed.
@@ -44,12 +46,14 @@ If no actions are provided, `-dtn` is assumed.
     -n --normalize    Normalizes the volume of existing files
     -t --tag          Applies metadata to existing FILE
 """
+from phelng.youtube import search
+from phelng.ranker import Ranker
 from typing import *
 import docopt
 from wcwidth import wcswidth
-from phelng.metadata import SpotifyClient, Track, TrackSpotify
-from phelng.downloader import download_library
-from phelng.utils import create_missing_files, check_all_files_exist, terminal_width
+from phelng.metadata import SpotifyClient, Track, TrackSpotify, apply_metadata
+from phelng.downloader import Downloader
+from phelng.utils import create_missing_files, check_all_files_exist, make_filename_safe, terminal_width
 from phelng.library_files import append_tracks_to_library, merge_tsv_files, parse_tsv_lines
 from PyInquirer import prompt, ValidationError, Validator
 import re
@@ -72,8 +76,32 @@ def run():
     
     if args["--list"]:
         show_library(library)
-    if args["--download"]:
-        download_library(library)
+    if args["--download"] or args['--tag']:
+        spotify = SpotifyClient()
+    if args['--download']:
+        for track in library:
+            print('\n')
+            print(f"Metadata:    artist:{track.artist!r} title:{track.title!r} album:{track.album!r}")
+            metadata = spotify.get_appropriate_track(track) or track
+            # Get YouTube video URL to download
+            ranker = Ranker(args, metadata)
+            query = f'{metadata.artist} - {metadata.title}' + (f' {track.album}' if track.album else '')
+            print(f"Search:      {query}")
+            videos = search(query)
+            if not len(videos):
+                print(f"Search:      No results found.")
+                continue
+            video = ranker.select(videos)
+            if video is None:
+                print(f"Selection:   No videos that satisfy filtering conditions. Try to adjust settings like --duration-exclude-margin")
+                continue
+            print(f"Selected:    {video.title!r} by {video.uploader_name!r}\n             at {video.url}")
+            filename = make_filename_safe(f'{metadata.artist}--{metadata.title}' + (f'--{metadata.album}' if track.album else '')) + '.mp3'
+            print(f"Saving as:   {filename}")
+            Downloader().download(video.url, save_as=filename)
+            if args['--tag']:
+                print(f"Tags:        Applying to {filename!r}")
+                apply_metadata(filename, track, errors_hook=lambda msg: print(f"Tags: error: {msg}"))
     
 def show_library(library: Set[Track], max_cell_width: Optional[int] = None, padding=2):
     max_cell_width = max_cell_width or terminal_width() - padding

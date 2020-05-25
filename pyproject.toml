@@ -26,6 +26,9 @@ pydub = "^0.24.0"
 
 [tool.poetry.dev-dependencies]
 pydeps = "^1.9.3"
+pylint = "^2.5.2"
+rope = "^0.17.0"
+black = {version = "^19.10b0", allow-prereleases = true}
 
 [build-system]
 requires = ["poetry>=0.12"]

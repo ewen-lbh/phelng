@@ -6,7 +6,7 @@ import re
 
 class Ranker:
     def __init__(self, args: Dict[str, Any], track: Union[Track, TrackSpotify]) -> None:
-        self.duration_exclude_margin = args["--duration-exclude-margin"]
+        self.duration_exclude_margin = float(args["--duration-exclude-margin"])
         self.track = track
 
     def duration(self, video: YoutubeVideo) -> int:
@@ -39,8 +39,15 @@ class Ranker:
             return 2
         # Fallback case, score is 1
         return 1
+    
+    def title(self, video: YoutubeVideo) -> bool:
+        """
+        Checks if the video title contains the track's
+        (will be fuzzy-matching in the future)
+        """
+        return self.track.title in video.title
 
-    def select(self, videos: List[YoutubeVideo]) -> YoutubeVideo:
+    def select(self, videos: List[YoutubeVideo]) -> Optional[YoutubeVideo]:
         """
         Selects the YouTube video to serve as the audio source
         by ranking the given videos
@@ -48,6 +55,9 @@ class Ranker:
         # Exclude videos that don't match the duration threshold
         if hasattr(self.track, "duration"):
             videos = [v for v in videos if self.duration(v)]
+        
+        # Exclude videos that don't contain the title
+        videos = [v for v in videos if self.title(v)]
 
         # If the video's artist matches the track's, take that one immediately
         youtube_artist_extract_pattern = re.compile(r"(.+)(?: [-–] Topic)?")
@@ -57,6 +67,9 @@ class Ranker:
                 == self.track.artist
             ):
                 return video
+
+        if len(videos) == 0:
+            return None
 
         return videos[0]
 
