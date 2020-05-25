@@ -46,23 +46,13 @@ If no actions are provided, `-dtn` is assumed.
 """
 from typing import *
 import docopt
-import os
-import sys
-from pprint import pprint
 from wcwidth import wcswidth
-from shutil import get_terminal_size
 from phelng.metadata import SpotifyClient, Track, TrackSpotify
 from phelng.downloader import download_library
+from phelng.utils import create_missing_files, check_all_files_exist, terminal_width
+from phelng.library_files import append_tracks_to_library, merge_tsv_files, parse_tsv_lines
 from PyInquirer import prompt, ValidationError, Validator
 import re
-
-def create_missing_files(*files) -> None:
-    for file in files:
-        if not os.path.exists(file):
-            with open(file, "w") as f:
-                f.write("")
-            print(f"info: Created non-existent file {file!r}")
-
 
 def run():
     args = docopt.docopt(__doc__)
@@ -85,51 +75,6 @@ def run():
     if args["--download"]:
         download_library(library)
     
-
-def check_all_files_exist(files: List[str]) -> bool:
-    for file in files:
-        if not os.path.exists(file):
-            print(f"File {file!r} not found")
-            sys.exit(1)
-    return True
-
-
-def merge_tsv_files(files: List[str]) -> Set[tuple]:
-    """
-	Merges filepaths `files` and removes duplicate lines
-	"""
-    contents: Set[tuple] = set()
-    for file in files:
-        for line in open(file).read().split("\n"):
-            # Ignore comments
-            if line.startswith("\t"):
-                continue
-            # Ignore empty lines
-            if not line:
-                continue
-            if line in contents:
-                print(f"warn: {line!r} appears more than once, ignoring duplicates.")
-            contents.add(line)
-    return contents
-
-
-def parse_tsv_lines(lines: Set[str]) -> Set[Track]:
-    parsed = set()
-    for line in lines:
-        cells = line.split("\t")
-        if len(cells) == 2:
-            cells = [cells[0], cells[1], None]
-        if len(cells) != 3:
-            print(
-                f"error at line {line!r}: rows must have between 2 and 3 values (found {len(cells)})"
-            )
-            sys.exit(1)
-
-        artist, title, album = cells
-        parsed.add(Track(artist=artist, title=title, album=album))
-    return parsed
-
-
 def show_library(library: Set[Track], max_cell_width: Optional[int] = None, padding=2):
     max_cell_width = max_cell_width or terminal_width() - padding
     columns_lengths = {
@@ -225,15 +170,6 @@ def choose_playlist(spotify: SpotifyClient) -> List[TrackSpotify]:
         playlist = spotify.get_playlist(playlist_id)
     print(f" Done: got {len(playlist)} track(s)")
     return playlist
-
-
-def append_tracks_to_library(tracks: List[TrackSpotify], append_to: str) -> None:
-    with open(append_to, "a") as file:
-        file.write("\n".join((t.to_tsv() for t in tracks)) + "\n")
-
-
-def terminal_width() -> int:
-    return get_terminal_size((80, 80)).columns
 
 
 if __name__ == "__main__":
