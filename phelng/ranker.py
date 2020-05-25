@@ -22,24 +22,22 @@ class Ranker:
         # Check if this duration is <= --duration-check-margin
         return duration_diff <= self.duration_exclude_margin
 
-    def uploader_name(self, video: YoutubeVideo) -> int:
+    def uploader_name(self, video: YoutubeVideo) -> bool:
         """
         Gives a score based on the uploader name
         """
         # When the uploader matches the artist, it's better!
-        if any((artist == video.uploader_name for artist in self.track.artists)):
-            return 3
+        if hasattr(self.track, "artists"):
+            artists = self.track.artists
+        else:
+            artists = [self.track.artist]
         # Auto-generated YouTube artist channels tend to be named <artist> - Topic
-        if any(
-            (
-                f"{artist} - Topic" == video.uploader_name
-                for artist in self.track.artists
-            )
-        ):
-            return 2
-        # Fallback case, score is 1
-        return 1
-    
+        youtube_artist_extract_pattern = re.compile(r"(.+)(?: [-–] Topic)?")
+        youtube_extracted_artist = youtube_artist_extract_pattern.search(
+            video.uploader_name
+        ).group(1)
+        return any((artist == youtube_extracted_artist for artist in artists))
+
     def title(self, video: YoutubeVideo) -> bool:
         """
         Checks if the video title contains the track's
@@ -55,17 +53,13 @@ class Ranker:
         # Exclude videos that don't match the duration threshold
         if hasattr(self.track, "duration"):
             videos = [v for v in videos if self.duration(v)]
-        
+
         # Exclude videos that don't contain the title
         videos = [v for v in videos if self.title(v)]
 
         # If the video's artist matches the track's, take that one immediately
-        youtube_artist_extract_pattern = re.compile(r"(.+)(?: [-–] Topic)?")
         for video in videos:
-            if (
-                youtube_artist_extract_pattern.search(video.title).group(1)
-                == self.track.artist
-            ):
+            if self.uploader_name(video):
                 return video
 
         if len(videos) == 0:
@@ -78,10 +72,10 @@ if __name__ == "__main__":
     track = Track("Geotic", "Swiss Bicycle")
     videos = search(f"{track.artist} - {track.title}")
     import json
-    open("temp.json", "w").write(json.dumps([ v._asdict() for v in videos ]))
+
+    open("temp.json", "w").write(json.dumps([v._asdict() for v in videos]))
     ranker = Ranker(
         {"--duration-exclude-margin": 5},
         SpotifyClient().get_appropriate_track(track) or track,
     )
     open("selected.json", "w").write(json.dumps(ranker.select(videos)._asdict()))
-
