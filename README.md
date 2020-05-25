@@ -1,12 +1,22 @@
 # phelng
 
+------
+
+**UPDATE:** The first working version is out! For now Spotify API credentials need to be stored in a `.env` file in the project's root directory, using `localhost:8080` as the callback URI. Because of this, it's not available on PyPI yet.
+
+If you want to try it right now, clone the repo, install the dependencies with `poetry install`, create your `.env` file and use it with `poetry run phelng`!
+
+Note that most CLI options are not implemented yet, but try `phelng -dt YOUR-LIBRARY-FILE` or `phelng --add-to YOUR-LIBRARY-FILE`!
+
+-----
+
 > Batch-download music with metadata from Spotify &amp; audio from YouTube, using a .tsv file
 
 Streaming services allow easy discovery of new music, but lock you, and prevents you from listening offline, DRM-free. Get the best of both worlds — online music services and offline music files — by downloading them using _phelng_.
 
 ## Features
 
-This project is a work-in-progress, and is close to releasing a first working version.
+This project is a work-in-progress, and <s>is close to releasing</s> has released a first working version in this month.
 
 - Your music library is contained in a single file using a [plain text, human-readable, intuitive, and universal file format](#library-file-format)
 - YouTube videos' volume varies greatly, so audio files are normalized
