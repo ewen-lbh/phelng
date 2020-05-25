@@ -4,6 +4,7 @@ from phelng.utils import cache_dir, terminal_width
 from phelng.metadata import Track
 from youtube_dl import YoutubeDL
 import sys
+from pastel import colorize
 from math import floor
 
 
@@ -15,7 +16,7 @@ class Downloader:
         """
         Downloads and returns the downloaded path
         """
-        self.progress_bar = ProgressBar(0, length=80)
+        self.progress_bar = ProgressBar(0, length=80, filled='█', empty=colorize('<options=dark>▒</>'))
         donwloader = YoutubeDL(
             {
                 "quiet": True,
@@ -25,10 +26,18 @@ class Downloader:
                 "cachedir": path.join(cache_dir, "download"),
                 "noplaylist": True,
                 "fixup": "warn",
+                "postprocessors": [
+                    {
+                        "key": "FFmpegExtractAudio",
+                        "preferredcodec": 'mp3',
+                        "preferredquality": '5',
+                        "nopostoverwrites": False
+                    }
+                ],
             }
         )
         donwloader.download([youtube_url])
-        print('')
+        print("")
 
     def progress_hook(self, d: dict):
         if d["status"] == "downloading":
@@ -44,22 +53,22 @@ class Downloader:
                 progress_unknown = True
 
             if progress_unknown:
-                self.progress_bar.left_text = "Downloading:   ...% ["
+                self.progress_bar.left_text = "Downloading:   ...%▕"
                 self.progress_bar.value = 0
                 self.progress_bar.total = 1
             else:
-                self.progress_bar.left_text = (
-                    f'Downloading: {d["downloaded_bytes"]/total_bytes*100:5.1f}% ['
+                self.progress_bar.left_text = colorize(
+                    f'<options=bold>Downloading:</> {d["downloaded_bytes"]/total_bytes*100:5.1f}%▕'
                 )
                 self.progress_bar.total = int(total_bytes or 0)
                 self.progress_bar.value = int(d["downloaded_bytes"])
                 if d.get("eta"):
                     minutes, seconds = divmod(d["eta"], 60)
-                    self.progress_bar.right_text = f"] {minutes}'{seconds}\" remaining"
+                    self.progress_bar.right_text = f"▏ {minutes}'{seconds}\" remaining"
                 else:
-                    self.progress_bar.right_text = f"] ??'??\" remaining"
+                    self.progress_bar.right_text = f"▏"
             self.progress_bar.display()
-        elif d['status'] == 'completed':
+        elif d["status"] == "completed":
             print("Downloading: Done.")
 
 

@@ -46,6 +46,9 @@ If no actions are provided, `-dtn` is assumed.
     -n --normalize    Normalizes the volume of existing files
     -t --tag          Applies metadata to existing FILE
 """
+from os import rename
+from os import path
+from phelng.normalize import normalize_file
 from phelng.youtube import search
 from phelng.ranker import Ranker
 from typing import *
@@ -53,10 +56,35 @@ import docopt
 from wcwidth import wcswidth
 from phelng.metadata import SpotifyClient, Track, TrackSpotify, apply_metadata
 from phelng.downloader import Downloader
-from phelng.utils import create_missing_files, check_all_files_exist, make_filename_safe, terminal_width
-from phelng.library_files import append_tracks_to_library, merge_tsv_files, parse_tsv_lines
+from phelng.utils import (
+    cache_dir,
+    create_missing_files,
+    check_all_files_exist,
+    make_filename_safe,
+    terminal_width,
+)
+from phelng.library_files import (
+    append_tracks_to_library,
+    merge_tsv_files,
+    parse_tsv_lines,
+)
 from PyInquirer import prompt, ValidationError, Validator
+from pastel import colorize
 import re
+
+
+def cprint(msg: str) -> None:
+    print(
+        colorize(
+            msg.replace("<b>", "<options=bold>")
+            .replace("</b>", "</options=bold>")
+            .replace("<red>", "<fg=red>")
+            .replace("</red>", "</fg=red>")
+            .replace("<dim>", "<options=dark>")
+            .replace("</dim>", "</options=dark>")
+        )
+    )
+
 
 def run():
     args = docopt.docopt(__doc__)
@@ -73,36 +101,89 @@ def run():
     check_all_files_exist(files)
     library = merge_tsv_files(files)
     library = parse_tsv_lines(library)
-    
+    library = list(library)
+
     if args["--list"]:
         show_library(library)
-    if args["--download"] or args['--tag']:
+    if args["--download"] or args["--tag"]:
         spotify = SpotifyClient()
-    if args['--download']:
+    if args["--download"]:
         for track in library:
-            print('\n')
-            print(f"Metadata:    artist:{track.artist!r} title:{track.title!r} album:{track.album!r}")
-            metadata = spotify.get_appropriate_track(track) or track
+            print("\n")
+            cprint(f"{track.artist} <dim>—</dim> <b>{track.title}</b>{ ' <dim>[</dim>' + track.album + '<dim>]</dim>' if track.album else ''}")
+            # cprint(
+            #     f"<b>Track:</b>       <dim>artist:</dim>{track.artist} <dim>title:</dim>{track.title} <dim>album:</dim>{track.album}"
+            # )
+            cprint(
+                f"<b>Spotify:</b>     <dim>Searching for</dim> {spotify._build_search_query(track)}"
+            )
+            metadata = spotify.get_appropriate_track(track)
+            if metadata:
+                cprint(
+                    f"<b>Metadata:</b>    <dim>artist:</dim>{metadata.artist} <dim>title:</dim>{metadata.title} <dim>album:</dim>{metadata.album}"
+                )
+                cprint(
+                    f"             <dim>track_number:</dim>{metadata.track_number} <dim>duration:</dim>{metadata.duration}s <dim>release_date:</dim>{metadata.release_date and metadata.release_date.isoformat()}"
+                )
+                cprint(
+                    f"             <dim>total_tracks:</dim>{metadata.total_tracks} <dim>cover_art_url:</dim>{metadata.cover_art_url}"
+                )
+            else:
+                metadata = track
+                cprint(f"<b>Spotify:</b>\n  <red>Error:     No search results</red>")
+
             # Get YouTube video URL to download
             ranker = Ranker(args, metadata)
-            query = f'{metadata.artist} - {metadata.title}' + (f' {track.album}' if track.album else '')
-            print(f"Search:      {query}")
+            query = f"{metadata.artist} - {metadata.title}" + (
+                f" {track.album}" if track.album else ""
+            )
+            cprint(f"<b>YouTube:</b>     <dim>Searching for </dim>{query}")
             videos = search(query)
             if not len(videos):
-                print(f"Search:      No results found.")
+                cprint(f"  <red>Error:       No results found.</red>")
                 continue
             video = ranker.select(videos)
             if video is None:
-                print(f"Selection:   No videos that satisfy filtering conditions. Try to adjust settings like --duration-exclude-margin")
+                cprint(
+                    f"<b>YouTube:</b>     <red>No videos that satisfy filtering conditions. Try to adjust settings like <b>--duration-exclude-margin</b></red>"
+                )
                 continue
-            print(f"Selected:    {video.title!r} by {video.uploader_name!r}\n             at {video.url}")
-            filename = make_filename_safe(f'{metadata.artist}--{metadata.title}' + (f'--{metadata.album}' if track.album else '')) + '.mp3'
-            print(f"Saving as:   {filename}")
-            Downloader().download(video.url, save_as=filename)
-            if args['--tag']:
-                print(f"Tags:        Applying to {filename!r}")
-                apply_metadata(filename, track, errors_hook=lambda msg: print(f"Tags: error: {msg}"))
-    
+            cprint(
+                f"<b>Selected:</b>    {video.title} <dim>by</dim> {video.uploader_name}\n             <dim>at</dim> {video.url}"
+            )
+            filename = (
+                make_filename_safe(
+                    f"{metadata.artist}--{metadata.title}"
+                    + (f"--{metadata.album}" if track.album else "")
+                )
+                + ".mp3"
+            )
+            cprint(f"<b>Saving as:</b>   {filename.replace('.mp3', colorize('<options=dark>.mp3</>'))}")
+            try:
+                Downloader().download(
+                    video.url, save_as=filename.replace(".mp3", ".%(ext)s")
+                )
+            except Exception:
+                cprint(f"<red>  Error:     Error while downloading with youtube-dl</red>")
+            if args["--tag"]:
+                cprint(f"<b>Tags:</b>        <dim>Applying to</dim> {filename}")
+                apply_metadata(
+                    filename,
+                    track,
+                    errors_hook=lambda msg: print(f"  Error:     {msg}"),
+                )
+            if args["--normalize"]:
+                cprint(f"<b>Normalize:</b>   {filename} <dim>to</dim> 20 <dim>dBFS</dim>")
+                filepath_temp = path.join(cache_dir, "normalize", filename)
+                try:
+                    normalize_file(filename, filepath_temp)
+                    rename(filepath_temp, filename)
+                except Exception as e:
+                    cprint(
+                        f"<red><b>  Error:</b>     Couldn't normalize {filename}</red>"
+                    )
+
+
 def show_library(library: Set[Track], max_cell_width: Optional[int] = None, padding=2):
     max_cell_width = max_cell_width or terminal_width() - padding
     columns_lengths = {
