@@ -1,26 +1,38 @@
+from os import path
 from typing import *
 from phelng.youtube import YoutubeVideo, search
 from phelng.metadata import Track, TrackSpotify, SpotifyClient
+from phelng.utils import cprint
 import re
 
+def parse_trusted_channels_file(contents: str) -> List[str]:
+    channels: List[str] = []
+    for line in contents.split('\n'):
+        channel = str()
+        for c in line:
+            channel += c
+            if c == '(':
+                break
+        channels.append(channel.strip())
+    return channels
 
 class Ranker:
     def __init__(self, args: Dict[str, Any], track: Union[Track, TrackSpotify]) -> None:
         self.duration_exclude_margin = float(args["--duration-exclude-margin"])
         self.track = track
+        with open(path.join(path.dirname(__file__), 'trusted_channels')) as file:
+            self.trusted_channels = parse_trusted_channels_file(file.read())
 
-    def duration(self, video: YoutubeVideo) -> int:
+    def duration(self, video: YoutubeVideo) -> bool:
         """
         Checks whether the given video is within --duration-check-margin
-        Returns:
-            1 - Durations match
-            0 - Durations don't match - only use this video as a fallback
-            -1 - Exclude this video
         """
         # Get the absolute difference between the youtube video and the spotify metadata
         duration_diff = abs(self.track.duration - video.duration)
         # Check if this duration is <= --duration-check-margin
-        return duration_diff <= self.duration_exclude_margin
+        ret = duration_diff <= self.duration_exclude_margin
+        cprint(f'    <dim>https://youtube.com/watch?v={video.video_id}</dim> duration check: <b><{"green" if ret else "red"}>{ret}</>  {self.track.duration}s -> {video.duration}s')
+        return ret
 
     def uploader_name(self, video: YoutubeVideo) -> bool:
         """
@@ -32,27 +44,28 @@ class Ranker:
         else:
             artists = [self.track.artist]
         # Auto-generated YouTube artist channels tend to be named <artist> - Topic
-        youtube_artist_extract_pattern = re.compile(r"(.+)(?: [-–] Topic)?")
-        youtube_extracted_artist = youtube_artist_extract_pattern.search(
-            video.uploader_name
-        ).group(1)
-        return any((artist == youtube_extracted_artist for artist in artists))
+        ret = any((artist == video.uploader_name.replace(' - Topic', '') for artist in artists))
+        cprint(f'    <dim>https://youtube.com/watch?v={video.video_id}</dim> uploader_name check: <b><{"green" if ret else "red"}>{ret}</>  {artists} -> {video.uploader_name}')
+        return ret
 
     def title(self, video: YoutubeVideo) -> bool:
         """
         Checks if the video title contains the track's
         (will be fuzzy-matching in the future)
         """
-        return self.track.title in video.title
+        words = self.track.title.split(' ')
+        words = [w.lower().strip() for w in words]
+        symbols = '-()' # Used by tracks on spotify to separate feat./remix statements from actual title.
+        words = [w for w in words if w not in symbols]
+        ret = any(( w for w in words if w in video.title.lower() ))
+        cprint(f'    <dim>https://youtube.com/watch?v={video.video_id}</dim> title check: <b><{"green" if ret else "red"}>{ret}</>  {words} -> {video.title!r}')
+        return ret
 
     def select(self, videos: List[YoutubeVideo]) -> Optional[YoutubeVideo]:
         """
         Selects the YouTube video to serve as the audio source
         by ranking the given videos
         """
-        # Exclude videos that don't match the duration threshold
-        if hasattr(self.track, "duration"):
-            videos = [v for v in videos if self.duration(v)]
 
         # Exclude videos that don't contain the title
         videos = [v for v in videos if self.title(v)]
@@ -61,6 +74,10 @@ class Ranker:
         for video in videos:
             if self.uploader_name(video):
                 return video
+
+        # Exclude videos that don't match the duration threshold
+        if hasattr(self.track, "duration"):
+            videos = [v for v in videos if self.duration(v)]
 
         if len(videos) == 0:
             return None
