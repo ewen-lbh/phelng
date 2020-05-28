@@ -9,6 +9,7 @@ Features:
         — If the track has multiple artists, (,-separated), first try all of them,
           then try them one by one.
     • Normalizes the audio
+    • Trims silence (TODO)
     • Downloads up to --parallel-downloads tracks at the same time
     • Applies as much IDv3 tags as possible, using Spotify's API:
         — Track title
@@ -28,6 +29,7 @@ Features:
 Usage:
     phelng [-l] [-d] [-n] [-t] [options] FILE...
     phelng -a [-l] [-d] [-n] [-t] [options] FILE
+    phelng [-d] [-n] [-t] [options] artist=ARTIST title=TITLE [album=ALBUM]
 
 Options:
     -p --parallel-downloads INTEGER    Download up to INTEGER tracks in parallel
@@ -37,11 +39,14 @@ Options:
     -N --network-limit NUMBER          Limit network usage (upload and download) by NUMBER kbps.
     --duration-exclude-margin NUMBER   Videos that are more than ±this seconds long 
                                        than the track will not be selected for download [default: 5]
+    --whitelisted-channels             Tracks will be downloaded from these channels if no video from
+                                       the artist's own channel is found.
 
 Actions (combinable, executed in the presented order):
 If no actions are provided, `-dtn` is assumed.
     -a --add-to       Adds the tracks from one of your spotify playlists to FILE
     -l --list         Show the library
+    -s --total-size   Estimate the total download size (TODO)
     -d --download     Downloads mp3s
     -n --normalize    Normalizes the volume of existing files
     -t --tag          Applies metadata to existing FILE
@@ -62,6 +67,7 @@ from phelng.utils import (
     check_all_files_exist,
     make_filename_safe,
     terminal_width,
+    cprint
 )
 from phelng.library_files import (
     append_tracks_to_library,
@@ -71,19 +77,6 @@ from phelng.library_files import (
 from PyInquirer import prompt, ValidationError, Validator
 from pastel import colorize
 import re
-
-
-def cprint(msg: str) -> None:
-    print(
-        colorize(
-            msg.replace("<b>", "<options=bold>")
-            .replace("</b>", "</options=bold>")
-            .replace("<red>", "<fg=red>")
-            .replace("</red>", "</fg=red>")
-            .replace("<dim>", "<options=dark>")
-            .replace("</dim>", "</options=dark>")
-        )
-    )
 
 
 def run():
@@ -134,7 +127,7 @@ def run():
 
             # Get YouTube video URL to download
             ranker = Ranker(args, metadata)
-            query = f"{metadata.artist} - {metadata.title}" + (
+            query = f"{metadata.artist} {metadata.title}" + (
                 f" {track.album}" if track.album else ""
             )
             cprint(f"<b>YouTube:</b>     <dim>Searching for </dim>{query}")
@@ -153,9 +146,9 @@ def run():
             )
             filename = (
                 make_filename_safe(
-                    f"{metadata.artist}--{metadata.title}"
-                    + (f"--{metadata.album}" if track.album else "")
-                )
+                    f"{metadata.artist}—{metadata.title}"
+                    + (f"—{metadata.album}" if track.album else "")
+                ).lower()
                 + ".mp3"
             )
             cprint(f"<b>Saving as:</b>   {filename.replace('.mp3', colorize('<options=dark>.mp3</>'))}")

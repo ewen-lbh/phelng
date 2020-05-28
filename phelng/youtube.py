@@ -15,6 +15,7 @@ class YoutubeVideo(NamedTuple):
     description: str
     duration: int  # seconds
     video_id: str
+    is_verified_artist: bool
 
 
 def parse_results_html(results_html: str) -> List[YoutubeVideo]:
@@ -41,6 +42,7 @@ def parse_results_html(results_html: str) -> List[YoutubeVideo]:
                             result.select_one(".yt-lockup-meta-info").text
                         ).group(1)
                     ),
+                    is_verified_artist=result.select_one('.yt-channel-title-icon-verified') is not None
                 )
                 results.append(video_info)
             except Exception as e:
@@ -57,5 +59,7 @@ def get_results_html(query: str) -> str:
 
 def search(query: str) -> List[YoutubeVideo]:
     results = get_results_html(query)
+    with open('temp.html', 'w') as f:
+        f.write(results)
     videos = parse_results_html(results)
     return videos

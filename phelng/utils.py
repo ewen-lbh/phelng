@@ -2,6 +2,7 @@ from os.path import expanduser
 from typing import *
 import os, sys
 from shutil import get_terminal_size
+from pastel import colorize
 
 def create_missing_files(*files) -> None:
     for file in files:
@@ -48,8 +49,21 @@ def make_filename_safe(o: str, substitute: str = '-', remove_whitespace: bool = 
         safe += c
     
     return safe
-    
-        
-        
+   
+      
 
 cache_dir = expanduser('~/.cache/phelng')
+
+def cprint(msg: str) -> None:
+    print(
+        colorize(
+            msg.replace("<b>", "<options=bold>")
+            .replace("</b>", "</options=bold>")
+            .replace("<red>", "<fg=red>")
+            .replace("</red>", "</fg=red>")
+            .replace("<green>", "<fg=green>")
+            .replace("</green>", "</fg=green>")
+            .replace("<dim>", "<options=dark>")
+            .replace("</dim>", "</options=dark>")
+        )
+    )

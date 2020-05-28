@@ -45,6 +45,8 @@ class Ranker:
             artists = [self.track.artist]
         # Auto-generated YouTube artist channels tend to be named <artist> - Topic
         ret = any((artist == video.uploader_name.replace(' - Topic', '') for artist in artists))
+        if hasattr(self.track, 'label'):
+            ret = ret or self.track.label == video.uploader_name
         cprint(f'    <dim>https://youtube.com/watch?v={video.video_id}</dim> uploader_name check: <b><{"green" if ret else "red"}>{ret}</>  {artists} -> {video.uploader_name}')
         return ret
 
@@ -70,7 +72,7 @@ class Ranker:
         # Exclude videos that don't contain the title
         videos = [v for v in videos if self.title(v)]
 
-        # If the video's artist matches the track's, take that one immediately
+        # If the video's artist matches the track's (or the label of the track's album), take that one immediately
         for video in videos:
             if self.uploader_name(video):
                 return video

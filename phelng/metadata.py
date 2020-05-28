@@ -27,6 +27,7 @@ class TrackSpotify(NamedTuple):
     track_number: int
     duration: float  # in seconds
     cover_art_url: str
+    label: Optional[str]
 
     @property
     def cover_art_filepath(self) -> str:
@@ -139,6 +140,7 @@ class SpotifyClient:
             release_date=release_date_to_datetime(album["release_date"]),
             total_tracks=len(album["tracks"]),
             cover_art_url=get_best_cover_art_url(album),
+            label=album['label'],
         )
 
     def get_playlist(self, playlist_id: str) -> List[TrackSpotify]:
