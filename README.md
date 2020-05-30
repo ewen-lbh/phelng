@@ -1,4 +1,7 @@
-# phelng
+<p align="center">
+<img height="200px" src="visual-identity/phelng-logo.png">
+<img alt="phelng" height="300px" src="visual-identity/phelng-wordmark.png">
+</p>
 
 ------
 
