@@ -152,7 +152,7 @@ def run():
                 ).lower()
                 + ".mp3"
             )
-            cprint(f"<b>Saving as:</b>   {filename.replace('.mp3', colorize('<options=dark>.mp3</>'))}")
+            cprint(f"<b>Saving as:</b>   {filename.replace('.mp3', '<options=dark>.mp3</>')}")
             try:
                 Downloader().download(
                     video.url, save_as=filename.replace(".mp3", ".%(ext)s")
