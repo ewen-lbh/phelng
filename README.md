@@ -4,6 +4,14 @@
 
 **UPDATE:** The first working version is out! For now Spotify API credentials need to be stored in a `.env` file in the project's root directory, using `localhost:8080` as the callback URI. Because of this, it's not available on PyPI yet.
 
+Here's what to add to the `.env`:
+
+```bash
+SPOTIPY_CLIENT_ID="YOUR CLIENT ID"
+SPOTIPY_CLIENT_SECRET="YOUR CLIENT SECRET"
+SPOTIPY_REDIRECT_URI="http://localhost:8080" # Remeber to add this URI to your Spotify app's redirect URIs whitelist in "My Applications" panel
+```
+
 If you want to try it right now, clone the repo, install the dependencies with `poetry install`, create your `.env` file and use it with `poetry run phelng`!
 
 Note that most CLI options are not implemented yet, but try `phelng -dt YOUR-LIBRARY-FILE` or `phelng --add-to YOUR-LIBRARY-FILE`!
