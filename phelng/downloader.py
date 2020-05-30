@@ -23,6 +23,7 @@ class Downloader:
                 "progress_hooks": [lambda p: self.progress_hook(p)],
                 "outtmpl": save_as,
                 "format": "best/bestaudio",
+                "audioformat": "mp3",
                 "cachedir": path.join(cache_dir, "download"),
                 "noplaylist": True,
                 "fixup": "warn",
