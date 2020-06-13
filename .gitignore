@@ -114,3 +114,7 @@ dmypy.json
 
 # Spotipy credentials cache files
 .cache-*
+
+# MP3 files frrom tests
+*.mp3
+*.part
